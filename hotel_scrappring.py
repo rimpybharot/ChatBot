@@ -3,18 +3,19 @@ import os
 import time
 import requests
 import urllib2, json
+import random
 from bs4 import BeautifulSoup
 from slackclient import SlackClient
 
 # starterbot's ID as an environment variable
-BOT_ID = os.environ.get("BOT_ID")
+# BOT_ID = os.environ.get("BOT_ID")
 
 # constants
-AT_BOT = "<@" + BOT_ID + ">"
-EXAMPLE_COMMAND = "do"
+# AT_BOT = "<@" + BOT_ID + ">"
+# EXAMPLE_COMMAND = "do"
 
 # instantiate Slack & Twilio clients
-slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
+# slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
 
 
 def handle_command(command, channel):
@@ -66,67 +67,16 @@ def handle_command(command, channel):
         hotel_dict['rating']= hrating.text.strip()
         hotel_dict['room']= hroom.text.replace("\n"," ")
         hotel_dict['link']= "https://www.booking.com"+hlink.get('href').strip()
-
+        
+        random.shuffle(amenity_list)
+        am_rand=amenity_list[0]+", "+amenity_list[1]+", "+amenity_list[2]+", "+amenity_list[3]
+        hotel_dict['amenities']= am_rand
+        
         hotels.append(hotel_dict)
         id=id+1
 
     print("hotels")
     print(hotels)
-    #print(hotel_name)
-#     print("Hotel Name")
-#     for i in hotel_name:
-#        #print(i)
-#        value = i.text.strip()
-#        hotel_list.append(value)
-    
-#    # hotel_list = [x.replace('\n', '') for x in hotel_list]
-#     print(hotel_list)
-#     print(len(hotel_list))
-    
-   
-#     print("Price") 
-#     for i in price: 
-#         value = i.text.strip()
-#         price_list.append(value)
-#         #print(i.text)
-#     print(price_list)
-#     print(len(price_list))
-    
-    
-#     print("Rating") 
-#     for i in rating: 
-#         value = i.text.strip()
-#         rating_list.append(value)
-#         #print(i.text)
-#     print(rating_list)
-#     print(len(rating_list))
-#     # for i in range(0,len(hotel_list)-1):
-#     #     # print(hotel_list[i],price_list[i])
-#     #     hotels.append((hotel_list[i],price_list[i]))
-       
-#     # print(hotels)
-   
-  
-
-    
-#     #print(room_type)
-#     print("Room Type") 
-#     for i in room_type: 
-#         value = i.text.replace("\n"," ")
-#         room_list.append(value)
-#         #print(i.text)
-#     print(room_list)
-#     print(len(room_list))
-
-    
-#     #print(hotel_link)
-#     print("Hotel Link") 
-#     for i in hotel_link: 
-#         value = "https://www.booking.com"+i.get('href').strip()
-#         hotel_link_list.append(value)
-#         #print(i.text)
-#     print(hotel_link_list)
-#     print(len(hotel_link_list))
 
     slack_client.api_call("chat.postMessage", channel=channel,
                           text="Amreen is the best", as_user=True)
