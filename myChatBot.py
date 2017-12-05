@@ -119,32 +119,47 @@ def start_second_set_of_questions(command, channel):
         return
     if decided:
         print("here")
-        hotel_index = str(command)
+        try:
+            hotel_index = int(command)
+        except ValueError:
+            send_repsonse("Give a numeric input from 1-15")
+            return
+        print hotel_index
         for hotel in hotels:
-            print hotel
-            print(type(hotel['hotel_id']))
-            print type(hotel_index)
+            print hotel['hotel_id']
+            # print(type(hotel['hotel_id']))
+            # print type(hotel_index)
             # for k,v in hotel.iteritems():
-            if hotel['hotel_id'] == int(hotel_index):
-                print hotel
-                hotel_dict['hotel_name'] = hotel['name']
-                hotel_dict['room_type'] = hotel['room']
-                hotel_dict['amenities'] = hotel['amenities']
-                generateQuery(hotel_dict)
-                send_repsonse("Please give an emailid")
-                emailidasked = True
-                return
-            else:
-                send_repsonse("Choose from 1-15 only!")
-                return
+        if hotel_index in range(1, 15):
+            for hotel in hotels:
+                if hotel['hotel_id'] == (hotel_index):
+                    print hotel
+                    hotel_dict['hotel_name'] = hotel['name']
+                    hotel_dict['room_type'] = hotel['room']
+                    hotel_dict['amenities'] = hotel['amenities']
+                    generateQuery(hotel_dict)
+                    send_repsonse("Please give an emailid")
+                    emailidasked = True
+                    return
+
+        else:
+            send_repsonse("Choose from 1-15 only!")
+            return
 
     elif not decided:
         if not asked:
             send_repsonse("Here is the list of hotels matching your search query!")
-            hotels = scrape_website()
-            # for hotel in hotels:
-            #     for k,v in hotel.iteritems():
-            #         send_repsonse(str(v))
+            hotels = scrape_website(hotel_dict)
+            for hotel in hotels:
+                TEXT = "\nhotel ID : " + str(hotel['hotel_id']) + "\n" + \
+                "Hotel Name : " + hotel['name'] + "\n" + \
+                "Price :" + hotel['price'] + "\n" + \
+                "Rating :" + hotel['rating'] + "\n" + \
+                "Link : " + hotel['link'] + "\n" + \
+                "Room :" + hotel['room'] + "\n" + \
+                "Amenities :" + hotel['amenities'] + "\n"
+                send_repsonse("------------------------------------")
+                send_repsonse(TEXT)
             send_repsonse("Would you like to book one? Reply with yes or no")
             asked = True
             return
@@ -168,7 +183,18 @@ def start_second_set_of_questions(command, channel):
 
 
 def show_bookings(command, channel):
-    send_repsonse(get_reservations())
+    bookings = get_reservations()
+    for booking in bookings:
+        TEXT = "\nBooking ID : " + booking[0] + "\n" + \
+        "Hotel Name : " + booking[1] + "\n" + \
+        "Hotel City :" + (booking[2]).replace('%20', ' ') + "\n" + \
+        "Check In Date :" + booking[3] + "\n" + \
+        "Check Out Date:" + booking[4] + "\n" + \
+        "Number of Rooms :" + booking[5] + "\n" + \
+        "RoomType :" + booking[7] + "\n" + \
+        "Amenities :" + booking[6] + "\n"
+
+        send_repsonse(TEXT)
 
 
 def book_and_reply(emailid):
