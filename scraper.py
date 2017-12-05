@@ -20,15 +20,15 @@ def processUserInput(hotel_dict):
 
 def scrape_website(hotel_dict):
    
-    hotel_dict ={'hotel_city': 'los angeles',
-              'rooms': '1',
-              'checkin_year': '2017',
-              'checkin_month': '12',
-              'checkin_day': '9',
-              'checkout_year': '2017',
-              'checkout_month': '12',
-              'checkout_day': '15'
-              }
+#     hotel_dict ={'hotel_city': 'los angeles',
+#               'rooms': '1',
+#               'checkin_year': '2017',
+#               'checkin_month': '12',
+#               'checkin_day': '9',
+#               'checkout_year': '2017',
+#               'checkout_month': '12',
+#               'checkout_day': '15'
+#               }
 
     hotel_dict = processUserInput(hotel_dict)
     #print(hotel_dict)
