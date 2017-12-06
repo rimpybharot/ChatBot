@@ -120,5 +120,5 @@ def scrape_website(hotel_dict):
 
 if __name__ == "__main__":
     scrape_website({})
-            
+
 
