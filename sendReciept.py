@@ -1,4 +1,6 @@
 import smtplib
+import datetime
+import time
 
 
 def sendreceipt(recipient, response):
@@ -12,13 +14,18 @@ def sendreceipt(recipient, response):
     checkout = response['checkout_year']+"/"+response['checkout_month']+"/"+response['checkout_day']
     amenities=response['amenities']
     room_type=response['room_type']
-    TEXT = "Hotel Name : " + hotel_name + "\n" + \
+    now = datetime.datetime.now()
+    today = datetime.date(now.year, now.month, now.day )
+    TEXT = "Hotel Name : " + (hotel_name).replace("%20"," ") + "\n" + \
     "Hotel City :" + hotel_city + "\n" + \
     "Check In Date :" + checkin + "\n" + \
     "Check Out Date:" + checkout + "\n" + \
     "Number of Rooms :" + rooms + "\n" + \
     "RoomType :" + room_type + "\n" + \
-    "Amenities :" + amenities
+    "Amenities :" + amenities + "\n" +\
+    "Booking Time :" + \
+        str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'))
+
 
 
     # Prepare actual message
@@ -31,9 +38,7 @@ def sendreceipt(recipient, response):
         server.login('273slackbot@gmail.com', 'slackbot123')
         server.sendmail(FROM, TO, message)
         server.close()
-        print 'successfully sent the mail'
+        return TEXT
     except:
         print "failed to send mail"
 
-# if __name__ == '__main__':
-#     send_email('rbverses21@gmail.com', 'mypassw0rd24@', 'rimpybharot@gmail.com', 'ok' , 'okkkk')
