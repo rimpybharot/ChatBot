@@ -106,7 +106,8 @@ def scrape_website(hotel_dict):
         hotel_dict['price'] = hprice.text.strip()
         hotel_dict['rating'] = hrating.text.strip()
         hotel_dict['room'] = (hroom.text.replace("\n", " ")).encode('ascii',errors='ignore')
-        hotel_dict['link'] = "https://www.booking.com" + hlink.get('href').strip()
+        #hotel_dict['link'] = "https://www.booking.com" + hlink.get('href').strip()
+        hotel_dict['link'] = "https://www.booking.com" + "".join(hlink.get('href').split())
         random.shuffle(amenity_list)
         # # random.shuffle(amenity_list)
         am_rand = amenity_list[0] + ", " + amenity_list[1] + ", " + amenity_list[2] + ", " + amenity_list[3]
