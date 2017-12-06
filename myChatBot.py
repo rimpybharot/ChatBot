@@ -105,7 +105,7 @@ def handle_commands(command , channel):
         show_bookings(command, channel)
         return
     if emailidasked:
-        if not re.match(r"[^@]+@[^@]+\.[^@]+", command):
+        if not re.match(r"[a-zA-Z0-9._]+@[a-zA-Z0-9._]+\.[a-zA-Z0-9._]+", command):
             book_and_reply(command)
         else:
             send_repsonse("Wrong emailid! Try again!")
@@ -122,7 +122,13 @@ def handle_commands(command , channel):
             send_repsonse(response)
             return
         # elif category == "Reservation":
-        elif "reservation" in command or "book a hotel" in command:
+        elif "reservation" in command \
+            or "book a hotel" in command
+            or "reserve a hotel" in command
+            or "search hotel" in command
+            or "search hotels" in command
+            or "book a room" in command
+            or "book hotel" in command:
             # asked=False
             # canceled=False
             # emailidasked = False
