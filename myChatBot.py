@@ -123,11 +123,11 @@ def handle_commands(command , channel):
             return
         # elif category == "Reservation":
         elif "reservation" in command \
-            or "book a hotel" in command
-            or "reserve a hotel" in command
-            or "search hotel" in command
-            or "search hotels" in command
-            or "book a room" in command
+            or "book a hotel" in command \
+            or "reserve a hotel" in command \
+            or "search hotel" in command \
+            or "search hotels" in command \
+            or "book a room" in command \
             or "book hotel" in command:
             # asked=False
             # canceled=False
