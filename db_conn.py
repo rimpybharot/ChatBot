@@ -14,10 +14,41 @@ def get_reservations():
     db.close()
     return bookings
 
-def generateQuery(response):
+
+def get_one_reservations(booking_id):
+    db = MySQLdb.connect("localhost","root","passw0rd","hotel_reservation" )
+    cursor = db.cursor()
+    query = "select * from reservation where "\
+    "reservationID='"+booking_id+"'"
+
+    print query
+
+    
+    row = cursor.execute(query)
+    db.close()
+    print row
+    return row
+
+
+def cancel_reservation(booking_id):
+    print booking_id
+    db = MySQLdb.connect("localhost","root","passw0rd","hotel_reservation" )
+    
+    cursor = db.cursor()
+    query = "delete from reservation where reservationID='"+booking_id+"'"
+    print query
+    row = cursor.execute(query)
+    db.commit()
+    db.close()
+    return row
+
+
+
+
+def make_reservation(response):
     db = MySQLdb.connect("localhost","root","passw0rd","hotel_reservation" )
     hotel_name = response['hotel_name']
-    hotel_city = response['hotel_city']
+    hotel_city = (response['hotel_city']).replace("%20"," ")
     rooms=response['rooms']
     checkin = response['checkin_year']+"/"+response['checkin_month']+"/"+response['checkin_day']
     checkout = response['checkout_year']+"/"+response['checkout_month']+"/"+response['checkout_day']
