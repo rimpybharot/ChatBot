@@ -8,6 +8,8 @@ import re
 from sendReciept import sendreceipt
 from scraper import scrape_website
 from getwitty import wit_response
+import requests
+import json
 
 # import emoji
 
@@ -105,7 +107,7 @@ def handle_commands(command , channel):
         show_bookings(command, channel)
         return
     if emailidasked:
-        if not re.match(r"[a-zA-Z0-9._]+@[a-zA-Z0-9._]+\.[a-zA-Z0-9._]+", command):
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", command):
             book_and_reply(command)
         else:
             send_repsonse("Wrong emailid! Try again!")
@@ -119,16 +121,38 @@ def handle_commands(command , channel):
         # print(category)
         if "hi" in command or "hello" in command or "hey there" in command or "hey" in command:
             response = "Hi There! How may I help you today? :raised_hand_with_fingers_splayed:"
+	    x={
+    "text": "Hi There! How may I help you today? :raised_hand_with_fingers_splayed:",
+    "attachments": [
+        {
+            "fallback": "You are unable to choose a game",
+            "callback_id": "wopr_game",
+            "color": "#3AA3E3",
+            "attachment_type": "default",
+            "actions": [
+                
+                {
+                    "name": "confirm",
+                    "text": "Book a Hotel",
+                    "type": "button",
+                    "value": "b"
+                },
+                {
+                    "name": "confirm",
+                    "text": "View Bookings",
+                    "type": "button",
+                    "value": "c"
+                }
+            ]
+        }
+    ]
+}
+            
+           
             send_repsonse(response)
             return
         # elif category == "Reservation":
-        elif "reservation" in command \
-            or "book a hotel" in command \
-            or "reserve a hotel" in command \
-            or "search hotel" in command \
-            or "search hotels" in command \
-            or "book a room" in command \
-            or "book hotel" in command:
+        elif "reservation" in command or "book a hotel" in command or "search" in command:
             # asked=False
             # canceled=False
             # emailidasked = False
@@ -139,9 +163,11 @@ def handle_commands(command , channel):
             # decided = False
             # lastQuestion = ''
             # inputs = False
-
+		
 
             response = "Sure I can help you with that!\nBut first I will need some inputs from you!"
+
+            
             send_repsonse(response)
             inputs = True
             save_data(command, channel)
@@ -212,13 +238,13 @@ def start_second_set_of_questions(command, channel):
             for hotel in hotels:
                 if hotel['hotel_id'] == (hotel_index):
                     print hotel
-                    TEXT = "\nhotel ID : " + str(hotel['hotel_id']) + "\n" + \
-                        "Hotel Name : " + hotel['name'] + "\n" + \
-                        "Price :" + hotel['price'] + "\n" + \
-                        "Rating :" + hotel['rating'] + "\n" + \
-                        "Link : " + hotel['link'] + "\n" + \
-                        "Room :" + hotel['room'] + "\n" + \
-                        "Amenities :" + hotel['amenities'] + "\n"
+                    TEXT = ">>>*Hotel ID : * " + str(hotel['hotel_id']) + "\n" + \
+                           "*Hotel Name : * " + hotel['name'] + "\n" + \
+                           "*Price : * " + hotel['price'] + "\n" + \
+                           "*Rating : * " + hotel['rating'] + "\n" + \
+                           "*Room : * " + hotel['room'] + "\n" + \
+                           "*Amenities : * " + hotel['amenities'] +"\n"+ \
+	 	                   "*Link : * <"+hotel['link'] +"|Click Here> for details"+"\n"
                     send_repsonse("You selected:")
                     send_repsonse(TEXT)
                     hotel_dict['hotel_name'] = (hotel['name']).replace("'","")
@@ -238,16 +264,16 @@ def start_second_set_of_questions(command, channel):
             send_repsonse("Here is the list of hotels matching your search query!")
             hotels = scrape_website(hotel_dict)
             for hotel in hotels:
-                TEXT = "\nhotel ID : " + str(hotel['hotel_id']) + "\n" + \
-                "Hotel Name : " + hotel['name'] + "\n" + \
-                "Price :" + hotel['price'] + "\n" + \
-                "Rating :" + hotel['rating'] + "\n" + \
-                "Link : " + hotel['link'] + "\n" + \
-                "Room :" + hotel['room'] + "\n" + \
-                "Amenities :" + hotel['amenities'] + "\n"
-                send_repsonse("------------------------------------")
+                TEXT = ">>>*Hotel ID : * " + str(hotel['hotel_id']) + "\n" + \
+                "*Hotel Name : * " + hotel['name'] + "\n" + \
+                "*Price : * " + hotel['price'] + "\n" + \
+                "*Rating : * " + hotel['rating'] + "\n" + \
+                "*Room : * " + hotel['room'] + "\n" + \
+                "*Amenities : * " + hotel['amenities'] +"\n"+ \
+		        "*Link : * <"+hotel['link'] +"|Click Here> for details"+"\n"
                 send_repsonse(TEXT)
                 time.sleep(1)
+
             send_repsonse("Would you like to book one? Reply with yes or no")
             asked = True
             return
@@ -281,16 +307,16 @@ def show_bookings(command, channel):
         return
 
     for booking in bookings:
-        TEXT = "\nBooking ID : " + booking[0] + "\n" + \
-        "Hotel Name : " + booking[1] + "\n" + \
-        "Hotel City :" + booking[2] + "\n" + \
-        "Check In Date :" + booking[3] + "\n" + \
-        "Check Out Date:" + booking[4] + "\n" + \
-        "Number of Rooms :" + booking[5] + "\n" + \
-        "RoomType :" + booking[7] + "\n" + \
-        "Amenities :" + booking[6] + "\n"
+        TEXT = "\n*Booking ID : *" + booking[0] + "\n" + \
+        "*Hotel Name : *" + booking[1] + "\n" + \
+        "*Hotel City : *" + booking[2] + "\n" + \
+        "*Check In Date : *" + booking[3] + "\n" + \
+        "*Check Out Date: *" + booking[4] + "\n" + \
+        "*Number of Rooms : *" + booking[5] + "\n" + \
+        "*RoomType : *" + booking[7] + "\n" + \
+        "*Amenities : *" + booking[6] + "\n"
 
-        send_repsonse("--------------------------------------")
+        send_repsonse("_________________________________________________________________")
         send_repsonse(TEXT)
 
 
@@ -423,4 +449,3 @@ if __name__ == "__main__":
 
     else:
          print "Houston we have a problem"
-
