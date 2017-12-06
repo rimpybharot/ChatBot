@@ -7,6 +7,7 @@ import datetime
 import re
 from sendReciept import sendreceipt
 from scraper import scrape_website
+from getwitty import wit_response
 
 # import emoji
 
@@ -21,6 +22,7 @@ emailidasked = False
 cindate = datetime.datetime.date
 coutdate = datetime.datetime.date
 hotels = []
+cancelation_asked = False
 
 
 asking_questions_done = False
@@ -57,6 +59,15 @@ def handle_commands(command , channel):
     global inputs
     global decided
     global lastQuestion
+    global cancelation_asked
+    global hotel_index
+    global decided
+    global canceled
+    global hotel_dict
+    global asked
+    global emailidasked
+    global searchOn
+    global hotels
 
     if "bye" in str(command):
         send_repsonse("Ok bye!")
@@ -67,11 +78,34 @@ def handle_commands(command , channel):
         return
     command = str(command)
 
-    if str(command) == "show my bookings":
+    #Get intent of the conversation
+
+    # intent = wit_response(command)
+    # print intent
+
+    # if 'booking' in intent:
+    #     show_bookings(command, channel)
+    #     return
+    # if 'bye' in intent:
+    #     send_repsonse("Ok bye!")
+    #     return
+
+    if cancelation_asked or \
+        str(command) == "cancel my booking" or \
+        str(command) == "cancel booking" or \
+        str(command) == "cancel bookings" or \
+        str(command) == "cancel my bookings":
+        # cancelation_asked = True
+        cancel_booking(command, channel)
+        return
+    if str(command) == "show my bookings" \
+        or str(command) == "show booking" \
+        or str(command) == "show my bookings" \
+        or str(command) == "show bookings":
         show_bookings(command, channel)
         return
     if emailidasked:
-        if not re.match(r"... regex here ...", command):
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", command):
             book_and_reply(command)
         else:
             send_repsonse("Wrong emailid! Try again!")
@@ -89,6 +123,18 @@ def handle_commands(command , channel):
             return
         # elif category == "Reservation":
         elif "reservation" in command or "book a hotel" in command:
+            # asked=False
+            # canceled=False
+            # emailidasked = False
+            # searchOn = False
+            # hotel_dict={}
+            # hotels =[]
+            # canceled = False
+            # decided = False
+            # lastQuestion = ''
+            # inputs = False
+
+
             response = "Sure I can help you with that!\nBut first I will need some inputs from you!"
             send_repsonse(response)
             inputs = True
@@ -102,6 +148,32 @@ def handle_commands(command , channel):
     else:
         response = "I don't understand"
         send_repsonse(response)
+
+
+def cancel_booking(command, channel):
+    global cancelation_asked
+    if cancelation_asked:
+        print command
+        if (str(command)).upper().startswith("SB-"):
+            print "some SB id"
+            row_to_cancel = get_one_reservations(str(command).upper())
+            if row_to_cancel == 1:
+                cancel_reservation(str(command).upper())
+                send_repsonse("Booking has been canceled!")
+                cancelation_asked = False
+                return
+            else:
+                send_repsonse("You have no booking with this ID")
+                return
+        else:
+            send_repsonse("Wrong booking ID, give correct booking ID")
+            return
+    else:
+        send_repsonse("Specify Booking ID which you want to cancel")
+        cancelation_asked = True
+        return
+    
+
 
 
 def start_second_set_of_questions(command, channel):
@@ -125,25 +197,34 @@ def start_second_set_of_questions(command, channel):
             send_repsonse("Give a numeric input from 1-15")
             return
         print hotel_index
-        for hotel in hotels:
-            print hotel['hotel_id']
-            # print(type(hotel['hotel_id']))
-            # print type(hotel_index)
-            # for k,v in hotel.iteritems():
-        if hotel_index in range(1, 15):
+        # for hotel in hotels:
+        #     print hotel['hotel_id']
+        #     # print(type(hotel['hotel_id']))
+        #     # print type(hotel_index)
+        #     # for k,v in hotel.iteritems():
+        if hotel_index in range(1, len(hotels)+1):
             for hotel in hotels:
                 if hotel['hotel_id'] == (hotel_index):
                     print hotel
-                    hotel_dict['hotel_name'] = hotel['name']
+                    TEXT = "\nhotel ID : " + str(hotel['hotel_id']) + "\n" + \
+                        "Hotel Name : " + hotel['name'] + "\n" + \
+                        "Price :" + hotel['price'] + "\n" + \
+                        "Rating :" + hotel['rating'] + "\n" + \
+                        "Link : " + hotel['link'] + "\n" + \
+                        "Room :" + hotel['room'] + "\n" + \
+                        "Amenities :" + hotel['amenities'] + "\n"
+                    send_repsonse("You selected:")
+                    send_repsonse(TEXT)
+                    hotel_dict['hotel_name'] = (hotel['name']).replace("'","")
                     hotel_dict['room_type'] = hotel['room']
                     hotel_dict['amenities'] = hotel['amenities']
-                    generateQuery(hotel_dict)
+                    make_reservation(hotel_dict)
                     send_repsonse("Please give an emailid")
                     emailidasked = True
                     return
 
         else:
-            send_repsonse("Choose from 1-15 only!")
+            send_repsonse("Choose from 1-"+str(len(hotels)-1)+" only!")
             return
 
     elif not decided:
@@ -160,6 +241,7 @@ def start_second_set_of_questions(command, channel):
                 "Amenities :" + hotel['amenities'] + "\n"
                 send_repsonse("------------------------------------")
                 send_repsonse(TEXT)
+                time.sleep(1)
             send_repsonse("Would you like to book one? Reply with yes or no")
             asked = True
             return
@@ -176,6 +258,9 @@ def start_second_set_of_questions(command, channel):
                 asked = False
                 canceled = True
                 return
+            else:
+                send_repsonse("please reply with a yes or no!")
+                return
 
     else:
         send_repsonse("Wrong Input!")
@@ -184,16 +269,22 @@ def start_second_set_of_questions(command, channel):
 
 def show_bookings(command, channel):
     bookings = get_reservations()
+
+    if len(bookings)==0:
+        send_repsonse("You have no bookings!")
+        return
+
     for booking in bookings:
         TEXT = "\nBooking ID : " + booking[0] + "\n" + \
         "Hotel Name : " + booking[1] + "\n" + \
-        "Hotel City :" + (booking[2]).replace('%20', ' ') + "\n" + \
+        "Hotel City :" + booking[2] + "\n" + \
         "Check In Date :" + booking[3] + "\n" + \
         "Check Out Date:" + booking[4] + "\n" + \
         "Number of Rooms :" + booking[5] + "\n" + \
         "RoomType :" + booking[7] + "\n" + \
         "Amenities :" + booking[6] + "\n"
 
+        send_repsonse("--------------------------------------")
         send_repsonse(TEXT)
 
 
@@ -209,9 +300,10 @@ def book_and_reply(emailid):
     global hotels
 
     emailid = emailid.split('|')[1]
-    print(emailid)
     send_repsonse("Booking hotel , expect to receive an email shortly!")
-    sendreceipt(emailid, hotel_dict)
+    text = sendreceipt(emailid, hotel_dict)
+    send_repsonse("Booking Details")
+    send_repsonse(text)
     decided = False
     asked = False
     searchOn = False
