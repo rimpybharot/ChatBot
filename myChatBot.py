@@ -120,35 +120,7 @@ def handle_commands(command , channel):
         # category = wit_response(command)
         # print(category)
         if "hi" in command or "hello" in command or "hey there" in command or "hey" in command:
-            response = "Hi There! How may I help you today? :raised_hand_with_fingers_splayed:"
-	    x={
-    "text": "Hi There! How may I help you today? :raised_hand_with_fingers_splayed:",
-    "attachments": [
-        {
-            "fallback": "You are unable to choose a game",
-            "callback_id": "wopr_game",
-            "color": "#3AA3E3",
-            "attachment_type": "default",
-            "actions": [
-                
-                {
-                    "name": "confirm",
-                    "text": "Book a Hotel",
-                    "type": "button",
-                    "value": "b"
-                },
-                {
-                    "name": "confirm",
-                    "text": "View Bookings",
-                    "type": "button",
-                    "value": "c"
-                }
-            ]
-        }
-    ]
-}
-            
-           
+            response = "Hi There! How may I help you today? :raised_hand_with_fingers_splayed:"         
             send_repsonse(response)
             return
         # elif category == "Reservation":
